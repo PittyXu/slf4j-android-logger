@@ -33,4 +33,4 @@ An Android Logger support slf4j api.
     * **TAG NAME** this MODULE Tag name showed, if not set it's Tag is the MODULE NAME
     * **FORMATTER HEADER** may include the SubTag(which may defined by fileName, className, methodName), Time, Code Line, Addition Text etc.
 3. No set
-    if not list in the file, the module will have a default set, is O{no config file} > V{has config file but on root node} > root node level.
+    * if not list in the file, the module will have a default set, whick is O(no config file) > V(has config file but on root node) > root node level.
