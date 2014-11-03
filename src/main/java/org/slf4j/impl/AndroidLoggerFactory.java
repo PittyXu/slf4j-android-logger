@@ -36,7 +36,6 @@ import java.util.concurrent.ConcurrentMap;
  * the appropriate named {@link AndroidLoggerAdapter} instance.
  */
 public class AndroidLoggerFactory implements ILoggerFactory {
-
     private final ConcurrentMap<String, Logger> loggerMap = new ConcurrentHashMap<String, Logger>();
 
     /**

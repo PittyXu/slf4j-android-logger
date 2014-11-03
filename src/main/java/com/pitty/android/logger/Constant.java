@@ -20,6 +20,8 @@ public class Constant {
 
     protected static final String CONF_ROOT = "root";
     protected static final String CONF_LOGGER_MODULE = "module:";
+    protected static final String CONF_LOGGER_SPLIT = ":";
+    protected static final String CONF_LOGGER_ITEM_SPLIT = ",";
 
     /**
      * Case insensitive String constant used to retrieve the name of the root logger.
