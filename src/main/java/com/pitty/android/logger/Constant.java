@@ -22,9 +22,5 @@ public class Constant {
     protected static final String CONF_LOGGER_MODULE = "module:";
     protected static final String CONF_LOGGER_SPLIT = ":";
     protected static final String CONF_LOGGER_ITEM_SPLIT = ",";
-
-    /**
-     * Case insensitive String constant used to retrieve the name of the root logger.
-     */
-    public static final String ROOT_LOGGER_NAME = org.slf4j.Logger.ROOT_LOGGER_NAME;
+    protected static final String CONF_LOGGER_PACKAGE_SPLIT = ".";
 }

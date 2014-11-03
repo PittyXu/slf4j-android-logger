@@ -3,7 +3,7 @@ package org.slf4j.impl;
 import com.pitty.android.logger.Constant;
 import com.pitty.android.logger.LEVEL;
 import com.pitty.android.logger.LoggerProperties;
-import com.pitty.android.logger.PatternLoggerHandler;
+import com.pitty.android.logger.LoggerHandler;
 import org.slf4j.helpers.FormattingTuple;
 import org.slf4j.helpers.MarkerIgnoringBase;
 import org.slf4j.helpers.MessageFormatter;
@@ -58,7 +58,7 @@ import org.slf4j.helpers.MessageFormatter;
  * @author Andrey Korzhevskiy <a.korzhevskiy@gmail.com>
  */
 class AndroidLoggerAdapter extends MarkerIgnoringBase {
-    PatternLoggerHandler handler;
+    LoggerHandler handler;
 
     /**
      * Package access allows only {@link AndroidLoggerFactory} to instantiate
@@ -526,6 +526,6 @@ class AndroidLoggerAdapter extends MarkerIgnoringBase {
     }
 
     private void _log(LEVEL level, String message, Throwable throwable) {
-        handler.print(getName(), level, throwable, message);
+        handler.print(level, throwable, message);
     }
 }

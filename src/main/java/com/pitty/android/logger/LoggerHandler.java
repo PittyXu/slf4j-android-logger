@@ -33,7 +33,13 @@ public interface LoggerHandler {
      *                      which is considered as an empty array.
      * @throws IllegalArgumentException if no format string is specified but arguments are presented.
      */
-    public void print(String loggerName, LEVEL level,
+    public void print(LEVEL level,
                       Throwable throwable, String messageFormat, Object... args) throws IllegalArgumentException;
 
+    /**
+     * Get the tag.
+     * @return
+     */
+    public String getTagName();
+    public String setTagName(String tag);
 }

@@ -27,10 +27,11 @@ An Android Logger support slf4j api.
     * if set **LEVEL** will control all module, modules set will overwritten.
     * if set **MODULE** list (split by ,), those modules' setting will not overwritten.
 2. Module set
-    * module.{MODULE NAME} = LEVEL:{TAG NAME}:{FORMATTER HEADER}
+    * module.{MODULE NAME} = LEVEL:{TAG NAME}:{TAG FORMATTER}:{FORMATTER HEADER}
     * **MODULE NAME** the module name input by the java code.
     * **LEVEL** this MODULE show log level
     * **TAG NAME** this MODULE Tag name showed, if not set it's Tag is the MODULE NAME
+    * **TAG FORMATTER** this MODULE Tag name showed in formatter like with line.
     * **FORMATTER HEADER** may include the SubTag(which may defined by fileName, className, methodName), Time, Code Line, Addition Text etc.
 3. No set
     * if not list in the file, the module will have a default set, whick is O(no config file) > V(has config file but on root node) > root node level.

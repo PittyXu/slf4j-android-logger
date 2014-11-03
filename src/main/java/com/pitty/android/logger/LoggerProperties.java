@@ -31,25 +31,34 @@ public class LoggerProperties {
         return Holder.instance;
     }
 
-    private final Map<String, PatternLoggerHandler> mHandlerMap;
-
+    private final Map<String, LoggerHandler> mHandlerMap;
     private LEVEL mGlobalLevel = LEVEL.V;
 
     private LoggerProperties() {
         mHandlerMap = loadConfiguration();
     }
 
-    public PatternLoggerHandler getHandler(String tag) {
+    public LoggerHandler getHandler(String tag) {
         if (null == mHandlerMap || mHandlerMap.isEmpty()) {
             // No Config, close log.
             return null;
         }
-        PatternLoggerHandler handler = mHandlerMap.get(tag);
-        if (null == handler) {
-            // Default handler.
-            return new PatternLoggerHandler(mGlobalLevel, null, null);
+        LoggerHandler handler = mHandlerMap.get(tag);
+        if (null != handler) {
+            handler.setTagName(tag);
+            return handler;
         }
-        return handler;
+        String tmp = tag;
+        while (tmp.lastIndexOf(Constant.CONF_LOGGER_PACKAGE_SPLIT) > 0) {
+            tmp = tmp.substring(0, tmp.lastIndexOf(Constant.CONF_LOGGER_PACKAGE_SPLIT));
+            handler = mHandlerMap.get(tmp + ".*");
+            if (null != handler) {
+                handler.setTagName(tag);
+                return handler;
+            }
+        }
+        // Default handler.
+        return new PatternLoggerHandler(mGlobalLevel, tag, null, null);
     }
 
     /**
@@ -57,9 +66,12 @@ public class LoggerProperties {
      *
      * @return
      */
-    private Map<String, PatternLoggerHandler> loadConfiguration() {
-        Map<String, PatternLoggerHandler> handlerMap = new HashMap<String, PatternLoggerHandler>();
-
+    private Map<String, LoggerHandler> loadConfiguration() {
+        if (!Constant.LOG) {
+            mGlobalLevel = LEVEL.O;
+            return null;
+        }
+        Map<String, LoggerHandler> handlerMap = new HashMap<String, LoggerHandler>();
         // read properties file
         Properties properties = new Properties();
         try {
@@ -78,8 +90,8 @@ public class LoggerProperties {
         String globalLogger = null;
         // parse properties
         for (Enumeration<?> names = properties.propertyNames(); names.hasMoreElements(); ) {
-            String propertyName = (String) names.nextElement();
-            String propertyValue = properties.getProperty(propertyName);
+            String propertyName = ((String) names.nextElement()).replaceAll("\\s|\\t|\\r|\\n", "");
+            String propertyValue = properties.getProperty(propertyName).replaceAll("\\s|\\t|\\r|\\n", "");
 
             if (propertyName.startsWith(Constant.CONF_LOGGER_MODULE)) {
                 String loggerName = propertyName.substring(Constant.CONF_LOGGER_MODULE.length());
@@ -121,8 +133,9 @@ public class LoggerProperties {
                     // global set and not in expect list, use global set.
                     }
                     String tag = values.length > 1 ? values[1] : null;
-                    String message = values.length > 2 ? values[2] : null;
-                    handlerMap.put(key, new PatternLoggerHandler(loggerLevel, tag, message));
+                    String tagPattern = values.length > 2 ? values[2] : null;
+                    String messagePattern = values.length > 3 ? values[3] : null;
+                    handlerMap.put(key, new PatternLoggerHandler(loggerLevel, tag, tagPattern, messagePattern));
                 }
             }
         }
