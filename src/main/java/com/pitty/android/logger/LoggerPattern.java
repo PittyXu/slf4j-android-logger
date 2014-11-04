@@ -27,7 +27,7 @@ public abstract class LoggerPattern {
 
     }
 
-    public static class DatePattern extends com.pitty.android.logger.LoggerPattern {
+    public static class DatePattern extends LoggerPattern {
 
         private final SimpleDateFormat dateFormat;
 
@@ -48,7 +48,7 @@ public abstract class LoggerPattern {
 
     }
 
-    public static class LevelPattern extends com.pitty.android.logger.LoggerPattern {
+    public static class LevelPattern extends LoggerPattern {
 
         public LevelPattern(int count, int length) {
             super(count, length);

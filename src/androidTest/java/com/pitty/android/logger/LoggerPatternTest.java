@@ -1,8 +1,6 @@
-package com.example;
+package com.pitty.android.logger;
 
-import com.pitty.android.logger.LEVEL;
-import com.pitty.android.logger.LoggerPattern;
-import com.pitty.android.logger.Utils;
+import com.pitty.android.logger.LoggerPattern.ConcatenatePattern;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -11,7 +9,6 @@ import java.util.ArrayList;
 import java.util.Date;
 
 public class LoggerPatternTest {
-
     StackTraceElement caller = Utils.getCaller();
     LEVEL level = LEVEL.D;
     String loggerName = "com.pitty.android";
@@ -25,30 +22,24 @@ public class LoggerPatternTest {
     LoggerPattern callerPattern = new LoggerPattern.CallerPattern(0, 0, 30, 0);
     LoggerPattern sourcePattern = new LoggerPattern.SourcePattern(0, 0);
 
-    LoggerPattern.ConcatenatePattern concatenatePattern = new LoggerPattern.ConcatenatePattern(0, 0, new ArrayList<LoggerPattern>());
-    LoggerPattern.ConcatenatePattern concatenatePatternChild = new LoggerPattern.ConcatenatePattern(60, 0, new ArrayList<LoggerPattern>());
+    ConcatenatePattern concatenatePattern = new ConcatenatePattern(0, 0, new ArrayList<LoggerPattern>());
+    ConcatenatePattern concatenatePatternChild = new ConcatenatePattern(60, 0, new ArrayList<LoggerPattern>());
 
 
     @Test
     public void patternTests() {
-        Assert.assertEquals("D",
-                levelPattern.apply(caller, loggerName, level));
+        Assert.assertEquals("D", levelPattern.apply(caller, loggerName, level));
 
         Assert.assertEquals(new SimpleDateFormat("HH:mm:ss").format(new Date()),
                 dataPattern.apply(caller, loggerName, level));
 
-        Assert.assertEquals(":",
-                colonPattern.apply(caller, loggerName, level));
+        Assert.assertEquals(":", colonPattern.apply(caller, loggerName, level));
 
-        Assert.assertEquals("\n",
-                tabPattern.apply(caller, loggerName, level));
+        Assert.assertEquals("\n", tabPattern.apply(caller, loggerName, level));
 
-        Assert.assertEquals("com.example.PatternTest#<init>:15",
-                callerPattern.apply(caller, loggerName, level));
+        Assert.assertEquals("com.pitty.android.logger.LoggerPatternTest#<init>:15", callerPattern.apply(caller, loggerName, level));
 
-        Assert.assertEquals("com.pitty.android",
-                loggerPattern.apply(caller, loggerName, level));
-
+        Assert.assertEquals("com.pitty.android", loggerPattern.apply(caller, loggerName, level));
 
         concatenatePattern.addPattern(dataPattern);
         concatenatePattern.addPattern(spacePattern);
@@ -110,6 +101,5 @@ public class LoggerPatternTest {
                 "HH:mm:ss DEBUG                      com.pitty.android PatternTest#<init>:15:\n".substring(8),
                 compiler.compile("%d{HH:mm:ss} %5level %60(%logger{30.30} %caller{-2.20}):%n").apply(caller, loggerName, level).substring(8));
     }
-
 }
 
