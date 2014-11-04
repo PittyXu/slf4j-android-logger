@@ -11,11 +11,11 @@ import java.util.regex.Matcher;
  */
 public abstract class LoggerPattern {
 
-    public static class PlainLoggerPattern extends com.pitty.android.logger.LoggerPattern {
+    public static class PlainPattern extends LoggerPattern {
 
         private final String string;
 
-        public PlainLoggerPattern(int count, int length, String string) {
+        public PlainPattern(int count, int length, String string) {
             super(count, length);
             this.string = string;
         }
@@ -27,11 +27,11 @@ public abstract class LoggerPattern {
 
     }
 
-    public static class DateLoggerPattern extends com.pitty.android.logger.LoggerPattern {
+    public static class DatePattern extends com.pitty.android.logger.LoggerPattern {
 
         private final SimpleDateFormat dateFormat;
 
-        public DateLoggerPattern(int count, int length, String dateFormat) {
+        public DatePattern(int count, int length, String dateFormat) {
             super(count, length);
             if (dateFormat != null) {
                 this.dateFormat = new SimpleDateFormat(dateFormat);
@@ -48,9 +48,9 @@ public abstract class LoggerPattern {
 
     }
 
-    public static class LevelLoggerPattern extends com.pitty.android.logger.LoggerPattern {
+    public static class LevelPattern extends com.pitty.android.logger.LoggerPattern {
 
-        public LevelLoggerPattern(int count, int length) {
+        public LevelPattern(int count, int length) {
             super(count, length);
         }
 
@@ -61,12 +61,12 @@ public abstract class LoggerPattern {
     }
 
 
-    public static class LoggerLoggerPattern extends com.pitty.android.logger.LoggerPattern {
+    public static class LogPattern extends LoggerPattern {
 
         private int loggerCount;
         private int loggerLength;
 
-        public LoggerLoggerPattern(int count, int length, int loggerCount, int loggerLength) {
+        public LogPattern(int count, int length, int loggerCount, int loggerLength) {
             super(count, length);
             this.loggerCount = loggerCount;
             this.loggerLength = loggerLength;
@@ -78,12 +78,12 @@ public abstract class LoggerPattern {
         }
     }
 
-    public static class CallerLoggerPattern extends com.pitty.android.logger.LoggerPattern {
+    public static class CallerPattern extends LoggerPattern {
 
         private int callerCount;
         private int callerLength;
 
-        public CallerLoggerPattern(int count, int length, int callerCount, int callerLength) {
+        public CallerPattern(int count, int length, int callerCount, int callerLength) {
             super(count, length);
             this.callerCount = callerCount;
             this.callerLength = callerLength;
@@ -110,9 +110,9 @@ public abstract class LoggerPattern {
         }
     }
 
-    public static class SourceLoggerPattern extends com.pitty.android.logger.LoggerPattern {
+    public static class SourcePattern extends LoggerPattern {
 
-        public SourceLoggerPattern(int count, int length) {
+        public SourcePattern(int count, int length) {
             super(count, length);
         }
 
@@ -145,23 +145,23 @@ public abstract class LoggerPattern {
         }
     }
 
-    public static class ConcatenateLoggerPattern extends com.pitty.android.logger.LoggerPattern {
+    public static class ConcatenatePattern extends LoggerPattern {
 
-        private final List<com.pitty.android.logger.LoggerPattern> loggerPatternList;
+        private final List<LoggerPattern> loggerPatternList;
 
-        public ConcatenateLoggerPattern(int count, int length, List<com.pitty.android.logger.LoggerPattern> loggerPatternList) {
+        public ConcatenatePattern(int count, int length, List<LoggerPattern> loggerPatternList) {
             super(count, length);
-            this.loggerPatternList = new ArrayList<com.pitty.android.logger.LoggerPattern>(loggerPatternList);
+            this.loggerPatternList = new ArrayList<LoggerPattern>(loggerPatternList);
         }
 
-        public void addPattern(com.pitty.android.logger.LoggerPattern loggerPattern) {
+        public void addPattern(LoggerPattern loggerPattern) {
             loggerPatternList.add(loggerPattern);
         }
 
         @Override
         protected String doApply(StackTraceElement caller, String loggerName, LEVEL level) {
             StringBuilder builder = new StringBuilder();
-            for (com.pitty.android.logger.LoggerPattern loggerPattern : loggerPatternList) {
+            for (LoggerPattern loggerPattern : loggerPatternList) {
                 builder.append(loggerPattern.apply(caller, loggerName, level));
             }
             return builder.toString();
@@ -169,7 +169,7 @@ public abstract class LoggerPattern {
 
         @Override
         protected boolean isCallerNeeded() {
-            for (com.pitty.android.logger.LoggerPattern loggerPattern : loggerPatternList) {
+            for (LoggerPattern loggerPattern : loggerPatternList) {
                 if (loggerPattern.isCallerNeeded()) {
                     return true;
                 }
@@ -197,13 +197,13 @@ public abstract class LoggerPattern {
         return false;
     }
 
-    public static com.pitty.android.logger.LoggerPattern compile(String pattern) {
+    public static LoggerPattern compile(String pattern) {
         try {
             return pattern == null ? null : new Compiler().compile(pattern);
         } catch (Exception e) {
 //            LoggerManager.getLogger(Logger.ROOT_LOGGER_NAME)
 //                    .e(e, "cannot parse pattern: '%s'", pattern);
-            return new PlainLoggerPattern(0, 0, pattern);
+            return new PlainPattern(0, 0, pattern);
         }
 
     }
@@ -212,7 +212,7 @@ public abstract class LoggerPattern {
 
         private String patternString;
         private int position;
-        private List<ConcatenateLoggerPattern> queue;
+        private List<ConcatenatePattern> queue;
 
         private final java.util.regex.Pattern PERCENT_PATTERN =
                 java.util.regex.Pattern.compile("%%");
@@ -241,30 +241,30 @@ public abstract class LoggerPattern {
         private final java.util.regex.Pattern SOURCE_PATTERN_SHORT =
                 java.util.regex.Pattern.compile("%([+-]?\\d+)?(\\.([+-]?\\d+))?s");
 
-        public com.pitty.android.logger.LoggerPattern compile(String string) {
+        public LoggerPattern compile(String string) {
             if (string == null) {
                 return null;
             }
 
             this.position = 0;
             this.patternString = string;
-            this.queue = new ArrayList<ConcatenateLoggerPattern>();
-            queue.add(new ConcatenateLoggerPattern(0, 0, new ArrayList<com.pitty.android.logger.LoggerPattern>()));
+            this.queue = new ArrayList<ConcatenatePattern>();
+            queue.add(new ConcatenatePattern(0, 0, new ArrayList<LoggerPattern>()));
 
             while (string.length() > position) {
 
                 int index = string.indexOf("%", position);
                 int bracketIndex = string.indexOf(")", position);
                 if (queue.size() > 1 && bracketIndex < index) {
-                    queue.get(queue.size() - 1).addPattern(new PlainLoggerPattern(0, 0, string.substring(position, bracketIndex)));
+                    queue.get(queue.size() - 1).addPattern(new PlainPattern(0, 0, string.substring(position, bracketIndex)));
                     queue.get(queue.size() - 2).addPattern(queue.remove(queue.size() - 1));
                     position = bracketIndex + 1;
                 }
                 if (index == -1) {
-                    queue.get(queue.size() - 1).addPattern(new PlainLoggerPattern(0, 0, string.substring(position)));
+                    queue.get(queue.size() - 1).addPattern(new PlainPattern(0, 0, string.substring(position)));
                     break;
                 } else {
-                    queue.get(queue.size() - 1).addPattern(new PlainLoggerPattern(0, 0, string.substring(position, index)));
+                    queue.get(queue.size() - 1).addPattern(new PlainPattern(0, 0, string.substring(position, index)));
                     position = index;
                     parse();
                 }
@@ -276,19 +276,19 @@ public abstract class LoggerPattern {
         private void parse() {
             Matcher matcher;
             if ((matcher = findPattern(PERCENT_PATTERN)) != null) {
-                queue.get(queue.size() - 1).addPattern(new PlainLoggerPattern(0, 0, "%"));
+                queue.get(queue.size() - 1).addPattern(new PlainPattern(0, 0, "%"));
                 position = matcher.end();
                 return;
             }
             if ((matcher = findPattern(NEWLINE_PATTERN)) != null) {
-                queue.get(queue.size() - 1).addPattern(new PlainLoggerPattern(0, 0, "\n"));
+                queue.get(queue.size() - 1).addPattern(new PlainPattern(0, 0, "\n"));
                 position = matcher.end();
                 return;
             }
             if ((matcher = findPattern(LEVEL_PATTERN)) != null || (matcher = findPattern(LEVEL_PATTERN_SHORT)) != null) {
                 int count = Integer.parseInt(matcher.group(1) == null ? "0" : matcher.group(1));
                 int length = Integer.parseInt(matcher.group(3) == null ? "0" : matcher.group(3));
-                queue.get(queue.size() - 1).addPattern(new LevelLoggerPattern(count, length));
+                queue.get(queue.size() - 1).addPattern(new LevelPattern(count, length));
                 position = matcher.end();
                 return;
             }
@@ -298,14 +298,14 @@ public abstract class LoggerPattern {
                 int length = Integer.parseInt(matcher.group(3) == null ? "0" : matcher.group(3));
                 int countCaller = Integer.parseInt(matcher.group(5) == null ? "0" : matcher.group(5));
                 int lengthCaller = Integer.parseInt(matcher.group(7) == null ? "0" : matcher.group(7));
-                queue.get(queue.size() - 1).addPattern(new CallerLoggerPattern(count, length, countCaller, lengthCaller));
+                queue.get(queue.size() - 1).addPattern(new CallerPattern(count, length, countCaller, lengthCaller));
                 position = matcher.end();
                 return;
             }
             if ((matcher = findPattern(SOURCE_PATTERN)) != null || (matcher = findPattern(SOURCE_PATTERN_SHORT)) != null) {
                 int count = Integer.parseInt(matcher.group(1) == null ? "0" : matcher.group(1));
                 int length = Integer.parseInt(matcher.group(3) == null ? "0" : matcher.group(3));
-                queue.get(queue.size() - 1).addPattern(new SourceLoggerPattern(count, length));
+                queue.get(queue.size() - 1).addPattern(new SourcePattern(count, length));
                 position = matcher.end();
                 return;
             }
@@ -314,20 +314,20 @@ public abstract class LoggerPattern {
                 int length = Integer.parseInt(matcher.group(3) == null ? "0" : matcher.group(3));
                 int countLogger = Integer.parseInt(matcher.group(5) == null ? "0" : matcher.group(5));
                 int lengthLogger = Integer.parseInt(matcher.group(7) == null ? "0" : matcher.group(7));
-                queue.get(queue.size() - 1).addPattern(new LoggerLoggerPattern(count, length, countLogger, lengthLogger));
+                queue.get(queue.size() - 1).addPattern(new LogPattern(count, length, countLogger, lengthLogger));
                 position = matcher.end();
                 return;
             }
             if ((matcher = findPattern(DATE_PATTERN)) != null || (matcher = findPattern(DATE_PATTERN_SHORT)) != null) {
                 String dateFormat = matcher.group(2);
-                queue.get(queue.size() - 1).addPattern(new DateLoggerPattern(0, 0, dateFormat));
+                queue.get(queue.size() - 1).addPattern(new DatePattern(0, 0, dateFormat));
                 position = matcher.end();
                 return;
             }
             if ((matcher = findPattern(CONCATENATE_PATTERN)) != null) {
                 int count = Integer.parseInt(matcher.group(1) == null ? "0" : matcher.group(1));
                 int length = Integer.parseInt(matcher.group(3) == null ? "0" : matcher.group(3));
-                queue.add(new ConcatenateLoggerPattern(count, length, new ArrayList<com.pitty.android.logger.LoggerPattern>()));
+                queue.add(new ConcatenatePattern(count, length, new ArrayList<LoggerPattern>()));
                 position = matcher.end();
                 return;
             }

@@ -1,6 +1,6 @@
 package com.example;
 
-import com.noveogroup.android.log.Utils;
+import com.pitty.android.logger.Utils;
 import org.junit.Assert;
 import org.junit.Test;
 

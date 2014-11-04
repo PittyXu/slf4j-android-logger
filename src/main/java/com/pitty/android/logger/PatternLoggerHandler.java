@@ -258,6 +258,11 @@ public class PatternLoggerHandler implements LoggerHandler {
     @Override
     public void print(LEVEL level,
                       Throwable throwable, String messageFormat, Object... args) throws IllegalArgumentException {
+        print(getTagName(), level, throwable, messageFormat, args);
+    }
+
+    @Override
+    public void print(String loggerName, LEVEL level, Throwable throwable, String messageFormat, Object... args) throws IllegalArgumentException {
         if (isEnabled(level)) {
             String message;
 
@@ -285,8 +290,8 @@ public class PatternLoggerHandler implements LoggerHandler {
                 caller = Utils.getCaller();
             }
 
-            String tag = compiledTagLoggerPattern == null ? getTagName() : compiledTagLoggerPattern.apply(caller, getTagName(), level);
-            String messageHead = compiledMessageLoggerPattern == null ? "" : compiledMessageLoggerPattern.apply(caller, getTagName(), level);
+            String tag = compiledTagLoggerPattern == null ? loggerName : compiledTagLoggerPattern.apply(caller, loggerName, level);
+            String messageHead = compiledMessageLoggerPattern == null ? "" : compiledMessageLoggerPattern.apply(caller, loggerName, level);
 
             if (messageHead.length() > 0 && !Character.isWhitespace(messageHead.charAt(0))) {
                 messageHead = messageHead + " ";
