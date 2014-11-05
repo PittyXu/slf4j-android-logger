@@ -88,38 +88,39 @@ public final class Utils {
     }
 
     /**
-     * Shorten string
+     * Shorten string.
      *
      * @param string modified string.
-     * @param count the desired minimum length of result.
-     * @param length the desired maximum of string length.
+     * @param min the desired minimum length of result.
+     *            if string length < abs(min), it will fill black space in left(min > 0)/right(min < 0).
+     * @param length the desired length the string to cut.
+     *               length > 0 cut string from begin of the string, length < 0 cut it from the end.
      * <p/>
      * <table border=1>
      * <tr>
      * <th>Example</th>
      * <th>Result</th>
      * </tr>
-     * <tr> <td>%6(text)</td>   <td><pre>'  text'</pre></td> </tr>
-     * <tr> <td>%-6(text)</td>  <td><pre>'text  '</pre></td> </tr>
-     * <tr> <td>%.3(text)</td>  <td><pre>'tex'</pre></td>    </tr>
-     * <tr> <td>%.-3(text)</td> <td><pre>'ext'</pre></td>    </tr>
+     * <tr> <td>("text", 6, 0)</td>   <td><pre>'  text'</pre></td> </tr>
+     * <tr> <td>("text", -6, 0)</td>  <td><pre>'text  '</pre></td> </tr>
+     * <tr> <td>("text", 0, 3)</td>  <td><pre>'tex'</pre></td>    </tr>
+     * <tr> <td>("text", 0, -3)</td> <td><pre>'ext'</pre></td>    </tr>
      * </table>
      */
-    public static String shorten(String string, int count, int length) {
-
+    public static String shorten(String string, int min, int length) {
         if (string == null) return null;
 
         String resultString = string;
         if (Math.abs(length) < resultString.length()) {
-            if (length > 0)
+            if (length > 0) {
                 resultString = string.substring(0, length);
-            if (length < 0)
+            } else if (length < 0) {
                 resultString = string.substring(string.length() + length, string.length());
+            }
         }
 
-        if (Math.abs(count) > resultString.length()) {
-
-            return String.format("%" + count + "s", resultString);
+        if (Math.abs(min) > resultString.length()) {
+            return String.format("%" + min + "s", resultString);
         }
 
         return resultString;
@@ -135,7 +136,6 @@ public final class Utils {
      * @param count the desired maximum count of packages
      * @return the shortened class name.
      */
-    // todo optimize it
     public static String shortenClassName(String className, int count, int maxLength) {
 
         className = shortenPackagesName(className, count);
@@ -202,39 +202,49 @@ public final class Utils {
         }
     }
 
-    // todo optimize it
+    /**
+     * Shorten className with part between .  count.
+     * @param className
+     * @param count Min: Integer.MIN_VALUE / 2 ; Max: Integer.MAX_VALUE
+     * @return
+     *
+     * * <p/>
+     * <table border=1>
+     * <tr>
+     * <th>Example</th>
+     * <th>Result</th>
+     * </tr>
+     * <tr> <td>("com.example.android.MainActivity", 0)</td>   <td><pre>'com.example.android.MainActivity'</pre></td> </tr>
+     * <tr> <td>("com.example.android.MainActivity", -1)</td>  <td><pre>'example.android.MainActivity'</pre></td> </tr>
+     * <tr> <td>("com.example.android.MainActivity", -2)</td>  <td><pre>'android.MainActivity'</pre></td>    </tr>
+     * <tr> <td>("com.example.android.MainActivity", 2)</td> <td><pre>'com.example'</pre></td>    </tr>
+     * <tr> <td>("com.example.android.MainActivity", 3)</td> <td><pre>'com.example.android'</pre></td>    </tr>
+     * <tr> <td>("com.example.android.MainActivity", 10)</td> <td><pre>'com.example.android.MainActivity'</pre></td>    </tr>
+     * <tr> <td>("com.example.android.MainActivity", -10)</td> <td><pre>'MainActivity'</pre></td>    </tr>
+     * </table>
+     */
     private static String shortenPackagesName(String className, int count) {
-        if (className == null) return null;
-        if (count == 0) return className;
+        if (count == 0 || className == null || className.length() <= 0) {
+            return className;
+        }
+        String[] classNames = className.split("\\.");
+        if (count >= classNames.length) {
+            return className;
+        } else if (Math.abs(count) >= classNames.length  || Math.abs(count) < 0) {
+            return classNames[classNames.length - 1];
+        }
 
         StringBuilder builder = new StringBuilder();
         if (count > 0) {
-            int points = 1;
-            for (int index = 0; index < className.length(); ) {
-                int i = className.indexOf('.', index);
-
-                if (i == -1) {
-                    builder.insert(builder.length(), className.substring(index, className.length()));
-                    break;
-
-                } else {
-                    if (points == count) {
-                        builder.insert(builder.length(), className.substring(index, i));
-                        break;
-                    }
-                    builder.insert(builder.length(), className.substring(index, i + 1));
-                }
-                index = i + 1;
-                points++;
+            for (int i = 0; i < count - 1; i++) {
+                builder.append(classNames[i]).append(".");
             }
+            builder.append(classNames[count - 1]);
         } else if (count < 0) {
-            String exceptString = shortenPackagesName(className, -count);
-            if (className.equals(exceptString)) {
-                int from = className.lastIndexOf('.') + 1;
-                int to = className.length();
-                builder.insert(builder.length(), className.substring(from, to));
-            } else
-                return className.replaceFirst(exceptString + '.', "");
+            for (int i = -count; i < classNames.length - 1; i++) {
+                builder.append(classNames[i]).append(".");
+            }
+            builder.append(classNames[classNames.length - 1]);
         }
         return builder.toString();
     }
