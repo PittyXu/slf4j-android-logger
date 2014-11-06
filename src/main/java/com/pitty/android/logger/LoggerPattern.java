@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * This class responsible for formatting messages for {@link PatternLoggerHandler}.
@@ -214,32 +215,23 @@ public abstract class LoggerPattern {
         private int position;
         private List<ConcatenatePattern> queue;
 
-        private final java.util.regex.Pattern PERCENT_PATTERN =
-                java.util.regex.Pattern.compile("%%");
-        private final java.util.regex.Pattern NEWLINE_PATTERN =
-                java.util.regex.Pattern.compile("%n");
-        private final java.util.regex.Pattern LEVEL_PATTERN =
-                java.util.regex.Pattern.compile("%([+-]?\\d+)?(\\.([+-]?\\d+))?level");
-        private final java.util.regex.Pattern LOGGER_PATTERN =
-                java.util.regex.Pattern.compile("%([+-]?\\d+)?(\\.([+-]?\\d+))?logger(\\{([+-]?\\d+)?(\\.([+-]?\\d+))?\\})?");
-        private final java.util.regex.Pattern CALLER_PATTERN =
-                java.util.regex.Pattern.compile("%([+-]?\\d+)?(\\.([+-]?\\d+))?caller(\\{([+-]?\\d+)?(\\.([+-]?\\d+))?\\})?");
-        private final java.util.regex.Pattern SOURCE_PATTERN =
-                java.util.regex.Pattern.compile("%([+-]?\\d+)?(\\.([+-]?\\d+))?source");
-        private final java.util.regex.Pattern DATE_PATTERN =
-                java.util.regex.Pattern.compile("%date(\\{(.*?)\\})?");
-        private final java.util.regex.Pattern CONCATENATE_PATTERN =
-                java.util.regex.Pattern.compile("%([+-]?\\d+)?(\\.([+-]?\\d+))?\\(");
-        private final java.util.regex.Pattern DATE_PATTERN_SHORT =
-                java.util.regex.Pattern.compile("%d(\\{(.*?)\\})?");
-        private final java.util.regex.Pattern LEVEL_PATTERN_SHORT =
-                java.util.regex.Pattern.compile("%([+-]?\\d+)?(\\.([+-]?\\d+))?p");
-        private final java.util.regex.Pattern LOGGER_PATTERN_SHORT =
-                java.util.regex.Pattern.compile("%([+-]?\\d+)?(\\.([+-]?\\d+))?c(\\{([+-]?\\d+)?(\\.([+-]?\\d+))?\\})?");
-        private final java.util.regex.Pattern CALLER_PATTERN_SHORT =
-                java.util.regex.Pattern.compile("%([+-]?\\d+)?(\\.([+-]?\\d+))?C(\\{([+-]?\\d+)?(\\.([+-]?\\d+))?\\})?");
-        private final java.util.regex.Pattern SOURCE_PATTERN_SHORT =
-                java.util.regex.Pattern.compile("%([+-]?\\d+)?(\\.([+-]?\\d+))?s");
+        private final Pattern PERCENT_PATTERN = Pattern.compile("%%");
+        private final Pattern NEWLINE_PATTERN = Pattern.compile("%n");
+        private final Pattern LEVEL_PATTERN = Pattern.compile("%([+-]?\\d+)?(\\.([+-]?\\d+))?level");
+        private final Pattern LOGGER_PATTERN =
+                Pattern.compile("%([+-]?\\d+)?(\\.([+-]?\\d+))?logger(\\{([+-]?\\d+)?(\\.([+-]?\\d+))?\\})?");
+        private final Pattern CALLER_PATTERN =
+                Pattern.compile("%([+-]?\\d+)?(\\.([+-]?\\d+))?caller(\\{([+-]?\\d+)?(\\.([+-]?\\d+))?\\})?");
+        private final Pattern SOURCE_PATTERN = Pattern.compile("%([+-]?\\d+)?(\\.([+-]?\\d+))?source");
+        private final Pattern DATE_PATTERN = Pattern.compile("%date(\\{(.*?)\\})?");
+        private final Pattern CONCATENATE_PATTERN = Pattern.compile("%([+-]?\\d+)?(\\.([+-]?\\d+))?\\(");
+        private final Pattern DATE_PATTERN_SHORT = Pattern.compile("%d(\\{(.*?)\\})?");
+        private final Pattern LEVEL_PATTERN_SHORT = Pattern.compile("%([+-]?\\d+)?(\\.([+-]?\\d+))?p");
+        private final Pattern LOGGER_PATTERN_SHORT =
+                Pattern.compile("%([+-]?\\d+)?(\\.([+-]?\\d+))?c(\\{([+-]?\\d+)?(\\.([+-]?\\d+))?\\})?");
+        private final Pattern CALLER_PATTERN_SHORT =
+                Pattern.compile("%([+-]?\\d+)?(\\.([+-]?\\d+))?C(\\{([+-]?\\d+)?(\\.([+-]?\\d+))?\\})?");
+        private final Pattern SOURCE_PATTERN_SHORT = Pattern.compile("%([+-]?\\d+)?(\\.([+-]?\\d+))?s");
 
         public LoggerPattern compile(String string) {
             if (string == null) {
@@ -335,11 +327,10 @@ public abstract class LoggerPattern {
             throw new IllegalArgumentException();
         }
 
-        private Matcher findPattern(java.util.regex.Pattern pattern) {
+        private Matcher findPattern(Pattern pattern) {
             Matcher matcher = pattern.matcher(patternString);
             return matcher.find(position) && matcher.start() == position ? matcher : null;
         }
-
     }
 }
 
